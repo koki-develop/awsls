@@ -15,6 +15,8 @@ func New(format string) (Printer, error) {
 	switch format {
 	case "json":
 		return newJsonPrinter(), nil
+	case "yaml", "yml":
+		return newYamlPrinter(), nil
 	default:
 		return nil, fmt.Errorf("unsupported format: %s", format)
 	}
