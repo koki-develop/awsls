@@ -60,7 +60,7 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.Flags().StringVar(&flagProfile, "profile", "", "AWS profile")
-	rootCmd.Flags().StringSliceVar(&flagRegion, "region", []string{}, "AWS region")
-	rootCmd.Flags().StringVar(&flagFormat, "format", "json", "Output format")
+	rootCmd.Flags().StringVarP(&flagProfile, "profile", "p", "", "AWS profile")
+	rootCmd.Flags().StringSliceVarP(&flagRegion, "region", "r", []string{}, "AWS region")
+	rootCmd.Flags().StringVarP(&flagFormat, "format", "f", "json", "Output format")
 }
