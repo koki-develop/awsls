@@ -8,25 +8,44 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	flagProfile string
+	flagRegion  []string
+	flagFormat  string
+)
+
 var rootCmd = &cobra.Command{
 	Use: "awsls",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		api, err := aws.New(&aws.Config{})
+		p, err := printer.New(flagFormat)
 		if err != nil {
 			return err
 		}
 
-		p, err := printer.New("json")
-		if err != nil {
-			return err
+		if len(flagRegion) == 0 {
+			flagRegion = []string{""}
 		}
 
-		rs, err := api.GetResources()
-		if err != nil {
-			return err
+		rsrcs := aws.Resources{}
+		for _, r := range flagRegion {
+			cfg := &aws.Config{
+				Profile: flagProfile,
+				Region:  r,
+			}
+			api, err := aws.New(cfg)
+			if err != nil {
+				return err
+			}
+
+			rs, err := api.GetResources()
+			if err != nil {
+				return err
+			}
+
+			rsrcs = append(rsrcs, rs...)
 		}
 
-		if err := p.Print(os.Stdout, rs); err != nil {
+		if err := p.Print(os.Stdout, rsrcs); err != nil {
 			return err
 		}
 
@@ -38,4 +57,10 @@ func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
+}
+
+func init() {
+	rootCmd.Flags().StringVar(&flagProfile, "profile", "", "AWS profile")
+	rootCmd.Flags().StringSliceVar(&flagRegion, "region", []string{}, "AWS region")
+	rootCmd.Flags().StringVar(&flagFormat, "format", "json", "Output format")
 }
