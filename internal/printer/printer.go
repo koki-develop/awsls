@@ -13,6 +13,8 @@ type Printer interface {
 
 func New(format string) (Printer, error) {
 	switch format {
+	case "table":
+		return newTablePrinter(), nil
 	case "json":
 		return newJsonPrinter(), nil
 	case "yaml", "yml":
