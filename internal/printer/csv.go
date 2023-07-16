@@ -15,7 +15,7 @@ func newCsvPrinter() *csvPrinter {
 	return &csvPrinter{}
 }
 
-func (c *csvPrinter) Print(w io.Writer, rs aws.Resources) error {
+func (*csvPrinter) Print(w io.Writer, rs aws.Resources) error {
 	cw := csv.NewWriter(w)
 
 	if err := cw.Write([]string{"service", "region", "resource", "arn"}); err != nil {

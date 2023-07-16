@@ -15,7 +15,7 @@ func newJsonPrinter() *jsonPrinter {
 	return &jsonPrinter{}
 }
 
-func (j *jsonPrinter) Print(w io.Writer, rs aws.Resources) error {
+func (*jsonPrinter) Print(w io.Writer, rs aws.Resources) error {
 	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")
 	return enc.Encode(rs)

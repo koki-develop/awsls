@@ -15,7 +15,7 @@ func newYamlPrinter() *yamlPrinter {
 	return &yamlPrinter{}
 }
 
-func (y *yamlPrinter) Print(w io.Writer, rs aws.Resources) error {
+func (*yamlPrinter) Print(w io.Writer, rs aws.Resources) error {
 	enc := yaml.NewEncoder(w)
 	enc.SetIndent(2)
 	return enc.Encode(rs)
