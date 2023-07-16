@@ -2,6 +2,7 @@ package aws
 
 import (
 	"context"
+	"sort"
 
 	"github.com/aws/aws-sdk-go-v2/aws/arn"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -42,6 +43,20 @@ type Resource struct {
 }
 
 type Resources []Resource
+
+func (rs Resources) Sort() {
+	sort.SliceStable(rs, func(i, j int) bool {
+		if rs[i].Service != rs[j].Service {
+			return rs[i].Service < rs[j].Service
+		}
+
+		if rs[i].Region != rs[j].Region {
+			return rs[i].Region < rs[j].Region
+		}
+
+		return rs[i].Resource < rs[j].Resource
+	})
+}
 
 func (api *API) GetResources() (Resources, error) {
 	var rs Resources

@@ -45,6 +45,7 @@ var rootCmd = &cobra.Command{
 			rsrcs = append(rsrcs, rs...)
 		}
 
+		rsrcs.Sort()
 		if err := p.Print(os.Stdout, rsrcs); err != nil {
 			return err
 		}
