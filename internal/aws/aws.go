@@ -6,11 +6,13 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws/arn"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/aws/aws-sdk-go-v2/service/resourcegroupstaggingapi"
 )
 
 type API struct {
-	client resourcegroupstaggingapi.GetResourcesAPIClient
+	ec2Client       *ec2.Client
+	resourcesClient *resourcegroupstaggingapi.Client
 }
 
 type Config struct {
@@ -31,8 +33,10 @@ func New(cfg *Config) (*API, error) {
 		return nil, err
 	}
 
-	svc := resourcegroupstaggingapi.NewFromConfig(awscfg)
-	return &API{client: svc}, nil
+	return &API{
+		resourcesClient: resourcegroupstaggingapi.NewFromConfig(awscfg),
+		ec2Client:       ec2.NewFromConfig(awscfg),
+	}, nil
 }
 
 type Resource struct {
@@ -58,11 +62,26 @@ func (rs Resources) Sort() {
 	})
 }
 
+func (api *API) ListRegions() ([]string, error) {
+	ipt := &ec2.DescribeRegionsInput{}
+	resp, err := api.ec2Client.DescribeRegions(context.Background(), ipt)
+	if err != nil {
+		return nil, err
+	}
+
+	names := make([]string, len(resp.Regions))
+	for i, r := range resp.Regions {
+		names[i] = *r.RegionName
+	}
+
+	return names, nil
+}
+
 func (api *API) GetResources() (Resources, error) {
 	var rs Resources
 
-	params := &resourcegroupstaggingapi.GetResourcesInput{}
-	p := resourcegroupstaggingapi.NewGetResourcesPaginator(api.client, params)
+	ipt := &resourcegroupstaggingapi.GetResourcesInput{}
+	p := resourcegroupstaggingapi.NewGetResourcesPaginator(api.resourcesClient, ipt)
 	for p.HasMorePages() {
 		page, err := p.NextPage(context.Background())
 		if err != nil {
